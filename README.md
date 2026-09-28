@@ -1,6 +1,6 @@
 # SPT – eine Warteschlange, die sich selbst optimal sortiert – Streamlit-Demo
 
-**[→ Demo live ausprobieren](#) (Deploy offen)**
+**[→ Demo live ausprobieren](https://sebastianhanisch-spt-scheduling-demo.streamlit.app/)**
 
 Erstes Stück (Wurzel) der neuen **Klassische-Scheduling-Theorie-Linie** der "Konzepte"-Reihe für die Website
 "Sebastian Hanisch – Operations Research und Machine Learning": $n$ Aufträge mit Bearbeitungszeit $p_j$ auf
