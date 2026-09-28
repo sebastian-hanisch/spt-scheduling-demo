@@ -3,10 +3,11 @@ EINER Maschine. Bearbeitungszeit ist für dieses Stück (SPT, 1||ΣCⱼ) die ein
 Gewicht sind für die Folgestücke (EDD, Moore-Hodgson, WSPT, gewichtete Verspätung) vorbereitet, die dasselbe
 Vehikel wortgleich weiterverwenden - wie jede andere Konzepte-Linie dieser Website.
 
-Fälligkeiten nach dem literaturüblichen TF/RDD-Schema (Tardiness-Faktor, Range der Fälligkeiten; Potts & Van
-Wassenhove-artig): die mittlere Fälligkeit liegt bei `P * (1 - TF)` (P = Summe aller Bearbeitungszeiten, die
-Fertigstellungszeit des letzten Auftrags EGAL in welcher Reihenfolge), gestreut über `RDD * P`. Für dieses Stück
-unbenutzt - vor Stück 2 (EDD) per WebSearch exakt zu verifizieren, nicht blind aus dem Gedächtnis übernehmen."""
+Fälligkeiten nach dem TF/RDD-Schema (Tardiness-Faktor, Range der Fälligkeiten): `dⱼ ~ U(P·(1-TF-RDD/2),
+P·(1-TF+RDD/2))` mit `P` = Summe aller Bearbeitungszeiten (die Fertigstellungszeit des letzten Auftrags EGAL in
+welcher Reihenfolge). Per WebSearch verifiziert (Potts & Van Wassenhove 1982/1985, Standard-Schema der
+Scheduling-Literatur für Fristen-Testinstanzen). Für dieses Stück (SPT, 1||ΣCⱼ) unbenutzt - Stück 2 (EDD, 1||Lmax)
+verwendet die Fälligkeit als Hauptgröße."""
 
 from dataclasses import dataclass
 
