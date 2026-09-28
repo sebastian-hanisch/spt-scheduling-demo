@@ -22,12 +22,14 @@ def _base(fig, height):
     return lock_axes(fig)
 
 
-def build_schedule(p, order, upto=None, color=SPT_COLOR):
+def build_schedule(p, order, completion, upto=None, color=SPT_COLOR):
     """Balken je Auftrag in der gegebenen Reihenfolge (Gantt-artig, eine Maschine); `upto` zeigt nur die ersten
-    so viele Aufträge (für das wachsende Beispiel)."""
+    so viele Aufträge (für das wachsende Beispiel). `completion` sind die TATSÄCHLICHEN Fertigstellungszeiten
+    (aus `spt_algorithm.evaluate_order`/`evaluate_order_with_setup`) - auf dem Werkstatt/Logistik-Vehikel
+    enthalten sie Lücken durch Rüstzeiten, die hier als sichtbarer Leerraum zwischen den Balken erscheinen."""
     order = np.asarray(order)
     upto = len(order) if upto is None else upto
-    starts = np.concatenate([[0], np.cumsum(p[order])[:-1]])
+    starts = np.asarray(completion) - p[order]
     fig = go.Figure()
     for i in range(upto):
         j = order[i]
@@ -39,13 +41,13 @@ def build_schedule(p, order, upto=None, color=SPT_COLOR):
     return _base(fig, 180)
 
 
-def build_completion_curve(p, spt_order, lpt_order, random_total=None):
-    spt_c = np.cumsum(p[spt_order])
-    lpt_c = np.cumsum(p[lpt_order])
-    x = np.arange(1, len(p) + 1)
+def build_completion_curve(spt_completion, lpt_completion):
+    """`*_completion`: die TATSÄCHLICHEN Fertigstellungszeiten je Position (aus `evaluate_order`/
+    `evaluate_order_with_setup`) - schon vehikelabhängig, hier nur noch aufsummiert."""
+    x = np.arange(1, len(spt_completion) + 1)
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=np.cumsum(spt_c), mode="lines+markers", line=dict(color=SPT_COLOR, width=2.5), name="SPT (kumulierte Summe der Fertigstellungen)"))
-    fig.add_trace(go.Scatter(x=x, y=np.cumsum(lpt_c), mode="lines+markers", line=dict(color=LPT_COLOR, width=2, dash="dash"), name="LPT (längste zuerst)"))
+    fig.add_trace(go.Scatter(x=x, y=np.cumsum(spt_completion), mode="lines+markers", line=dict(color=SPT_COLOR, width=2.5), name="SPT (kumulierte Summe der Fertigstellungen)"))
+    fig.add_trace(go.Scatter(x=x, y=np.cumsum(lpt_completion), mode="lines+markers", line=dict(color=LPT_COLOR, width=2, dash="dash"), name="LPT (längste zuerst)"))
     fig.update_xaxes(title_text="Aufträge eingeplant")
     fig.update_yaxes(title_text="Σ Fertigstellungszeiten bisher")
     return _base(fig, 320)

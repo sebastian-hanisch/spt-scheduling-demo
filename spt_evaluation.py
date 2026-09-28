@@ -21,11 +21,19 @@ class Settings:
     chain_seed: int = 0
     tf: float = C.DEFAULT_TF
     rdd: float = C.DEFAULT_RDD
+    vehicle: str = C.DEFAULT_VEHICLE
+    setup_time: int = C.DEFAULT_SETUP_TIME
+    n_families: int = C.DEFAULT_N_FAMILIES
 
 
 @lru_cache(maxsize=512)
 def instance(n, seed, tf=C.DEFAULT_TF, rdd=C.DEFAULT_RDD):
     return S.generate(n, seed, tf=tf, rdd=rdd)
+
+
+@lru_cache(maxsize=512)
+def logistik_instance(n, seed, n_families, setup_time, tf=C.DEFAULT_TF, rdd=C.DEFAULT_RDD):
+    return SL.generate(n, seed, n_families=n_families, setup_time=setup_time, tf=tf, rdd=rdd)
 
 
 @dataclass
@@ -52,12 +60,32 @@ class Analysis:
 
 
 def analyse(settings, random_draws=20):
-    inst = instance(settings.n, settings.seed, settings.tf, settings.rdd)
-    spt = A.spt(inst.p)
-    lpt = A.evaluate_order(inst.p, A.lpt_order(inst.p))
+    """Wertet SPT auf dem gewählten Vehikel aus - Neutral (Zielfunktion hängt nur von der Reihenfolge ab) oder
+    Werkstatt/Logistik (Rüstzeit beim Familienwechsel zählt mit). SPT selbst bleibt in beiden Fällen dieselbe
+    Regel (sortiert nur nach Bearbeitungszeit, kennt keine Rüstzeiten) - nur die BEWERTUNG der Reihenfolgen
+    (und damit auch der Vollaufzählung) wechselt mit dem Vehikel, damit die Haupt-Kennzahlen ehrlich
+    widerspiegeln, was auf dem gewählten Vehikel tatsächlich passiert (statt nur in einer Zusatzbox)."""
+    if settings.vehicle == "logistik":
+        inst = logistik_instance(settings.n, settings.seed, settings.n_families, settings.setup_time, settings.tf, settings.rdd)
+        p, family, setup = inst.p, inst.family, inst.setup
+
+        def ev(order):
+            return A.evaluate_order_with_setup(p, family, setup, order)
+
+        optimal = A.brute_force_optimal_with_setup(p, family, setup) if settings.n <= C.BRUTE_FORCE_MAX_N else None
+    else:
+        inst = instance(settings.n, settings.seed, settings.tf, settings.rdd)
+        p = inst.p
+
+        def ev(order):
+            return A.evaluate_order(p, order)
+
+        optimal = A.brute_force_optimal(p) if settings.n <= C.BRUTE_FORCE_MAX_N else None
+
+    spt = ev(A.spt_order(p))
+    lpt = ev(A.lpt_order(p))
     rng = np.random.default_rng(settings.chain_seed)
-    random_totals = [A.evaluate_order(inst.p, A.random_order(settings.n, rng)).total for _ in range(random_draws)]
-    optimal = A.brute_force_optimal(inst.p) if settings.n <= C.BRUTE_FORCE_MAX_N else None
+    random_totals = [ev(A.random_order(settings.n, rng)).total for _ in range(random_draws)]
     return Analysis(settings, inst, spt, lpt, float(np.mean(random_totals)), random_draws, optimal)
 
 

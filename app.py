@@ -9,14 +9,9 @@ optimal - ein Vertauschungsargument, kein Suchverfahren. Siehe README für die E
 Lauffähig mit: streamlit run app.py
 """
 
-from dataclasses import replace
-
-import numpy as np
 import streamlit as st
 
-import spt_algorithm as A
 import spt_constants as C
-import spt_scenario_logistik as SL
 from spt_evaluation import Settings, SWEEP_LABELS, analyse, instance, optimality_check, run_config, setup_gap, setup_gap_sweep, sweep, timing_sweep
 from spt_presets import apply_preset, bounds, init_session_state_defaults, load_permalink_settings, randomize_chain_seed, randomize_seed, sync_query_params
 from spt_visualization import build_completion_curve, build_schedule, build_setup_gap, build_sweep, build_timing
@@ -116,17 +111,12 @@ with st.sidebar:
 sync_query_params({"n_slider": int(n_jobs), "seed_input": int(seed), "chain_seed_input": int(chain_seed), "vehicle_radio": vehicle,
                     "setup_time_slider": int(setup_time), "n_families_slider": int(n_families)})
 
-settings = Settings(int(n_jobs), int(seed), int(chain_seed))
+settings = Settings(int(n_jobs), int(seed), int(chain_seed), vehicle=vehicle, setup_time=int(setup_time), n_families=int(n_families))
 with st.spinner("Rechne..."):
     a = _analysis(settings)
 inst = a.inst
 p = inst.p
-data_key = (settings, vehicle, setup_time, n_families)
-
-if vehicle == "logistik":
-    linst = SL.generate(int(n_jobs), int(seed), n_families=int(n_families), setup_time=int(setup_time))
-    spt_with_setup = A.evaluate_order_with_setup(linst.p, linst.family, linst.setup, a.spt.order)
-    opt_with_setup = A.brute_force_optimal_with_setup(linst.p, linst.family, linst.setup) if n_jobs <= C.BRUTE_FORCE_MAX_N else None
+data_key = settings
 
 # --- SPT in Aktion ---------------------------------------------------------------------------------------------------------------------
 
@@ -151,16 +141,17 @@ with view_slot.container():
         st.bar_chart({"Bearbeitungszeit": p.tolist()})
     elif step == 2:
         st.markdown(f"**SPT-Reihenfolge nach {upto} von {n_jobs} Aufträgen**")
-        st.plotly_chart(build_schedule(p, a.spt.order, upto=upto), width="stretch", key=f"s2_sched_{upto}")
-        st.caption(f"Σ Fertigstellungszeiten bisher: {_fmt_int(np.cumsum(p[a.spt.order])[:upto].sum())}")
+        st.plotly_chart(build_schedule(p, a.spt.order, a.spt.completion, upto=upto), width="stretch", key=f"s2_sched_{upto}")
+        st.caption(f"Σ Fertigstellungszeiten bisher: {_fmt_int(a.spt.completion[:upto].sum())}")
     else:
         st.markdown("**SPT gegen die längste-zuerst-Reihenfolge (LPT): Σ Fertigstellungszeiten über die Zeit**")
-        st.plotly_chart(build_completion_curve(p, a.spt.order, a.lpt.order), width="stretch", key="s3_curve")
+        st.plotly_chart(build_completion_curve(a.spt.completion, a.lpt.completion), width="stretch", key="s3_curve")
 
 if step == 1:
     st.caption(f"Bearbeitungszeiten zwischen {int(p.min())} und {int(p.max())} Minuten (Seed {seed}).")
 elif step == 2:
-    st.caption("Jeder Balken ist ein Auftrag; die Höhe der Maschinenzeile bleibt gleich, nur die Breite (Bearbeitungszeit) und die Reihenfolge ändern sich.")
+    gap_note = " Lücken zwischen Balken sind Rüstzeit bei einem Familienwechsel." if vehicle == "logistik" else ""
+    st.caption(f"Jeder Balken ist ein Auftrag; die Höhe der Maschinenzeile bleibt gleich, nur die Breite (Bearbeitungszeit) und die Reihenfolge ändern sich.{gap_note}")
 else:
     st.caption(f"SPT: Σ Fertigstellungszeiten {_fmt_int(a.spt.total)}. LPT: {_fmt_int(a.lpt.total)} ({a.gap_lpt:.1f} % mehr).")
 
@@ -169,36 +160,27 @@ st.markdown("---")
 # --- Ergebnis -------------------------------------------------------------------------------------------------------------------------
 
 st.markdown("## 🎯 Was die Sortierung bringt")
-st.caption("**Abstand:** Σ Fertigstellungszeiten einer Reihenfolge gegenüber SPT in Prozent. SPT selbst ist deterministisch (kein Zufall im Kern) - nur die Zufalls-Vergleichsreihenfolge streut.")
+vehicle_note = " Auf dem Werkstatt/Logistik-Vehikel zählt die Rüstzeit beim Familienwechsel mit - SPT kennt sie nicht, alle Zahlen hier berücksichtigen sie trotzdem." if vehicle == "logistik" else ""
+st.caption(f"**Abstand:** Σ Fertigstellungszeiten einer Reihenfolge gegenüber SPT in Prozent. SPT selbst ist deterministisch (kein Zufall im Kern) - nur die Zufalls-Vergleichsreihenfolge streut.{vehicle_note}")
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("SPT (Σ Fertigstellungen)", _fmt_int(a.spt.total), help="Die Zielgröße: Summe aller Fertigstellungszeiten in SPT-Reihenfolge.")
+m1.metric("SPT (Σ Fertigstellungen)", _fmt_int(a.spt.total), help="Die Zielgröße: Summe aller Fertigstellungszeiten in SPT-Reihenfolge, auf dem gewählten Vehikel.")
 m2.metric("LPT (längste zuerst)", f"+{a.gap_lpt:.1f} %", delta_color="off", help="Das genaue Gegenteil von SPT - so schlecht kann eine Reihenfolge werden.")
 m3.metric(f"Zufällige Reihenfolge (Mittel über {a.random_runs})", f"+{a.gap_random:.1f} %", delta_color="off", help="Mittel über mehrere zufällige Reihenfolgen derselben Instanz.")
 if a.optimal is not None:
     m4.metric("Vollaufzählung (Gegenprobe)", "trifft SPT exakt" if a.spt_matches_optimum else "WEICHT AB", delta_color="off",
-              help=f"Alle {n_jobs}! Reihenfolgen durchprobiert - unabhängige Bestätigung, dass SPT wirklich das Minimum ist.")
+              help=f"Alle {n_jobs}! Reihenfolgen durchprobiert (auf dem gewählten Vehikel) - unabhängige Bestätigung bzw. Gegenprobe.")
 else:
     m4.metric("Vollaufzählung", f"erst ab n ≤ {C.BRUTE_FORCE_MAX_N}", delta_color="off", help="Bei dieser Größe wäre die Vollaufzählung zu langsam - siehe das Timing-Experiment unten.")
 
 if a.optimal is not None and not a.spt_matches_optimum:
-    st.error("⚠️ SPT weicht von der Vollaufzählung ab - das wäre ein Fehler im Beweis oder in der Implementierung, bitte melden.")
-else:
-    st.success(f"✅ SPT ist {a.gap_lpt:.1f} % besser als die schlechteste Reihenfolge (LPT) und {a.gap_random:.1f} % besser als eine zufällige - bei dieser Zielfunktion beweisbar die beste überhaupt.")
-
-if vehicle == "logistik":
-    st.markdown("**Auf dem Werkstatt/Logistik-Vehikel** (Rüstzeit je Familienwechsel berücksichtigt):")
-    lm1, lm2 = st.columns(2)
-    lm1.metric("SPT, Rüstzeiten mitgerechnet", _fmt_int(spt_with_setup.total), help="Dieselbe SPT-Reihenfolge wie oben, aber die Fertigstellungszeiten berücksichtigen jetzt die Rüstzeit beim Familienwechsel.")
-    if opt_with_setup is not None:
-        gap = 100.0 * (spt_with_setup.total - opt_with_setup.total) / opt_with_setup.total
-        lm2.metric("Echtes Optimum MIT Rüstzeiten", _fmt_int(opt_with_setup.total), delta=f"SPT ist {gap:.1f} % darüber", delta_color="off",
-                   help="Vollaufzählung, die die Rüstzeiten selbst mit optimiert - nur für kleine n möglich.")
-        if gap > 0.5:
-            st.warning(f"⚠️ SPT ist hier NICHT mehr optimal: {gap:.1f} % über dem echten Optimum. Der Beweis oben setzt keine Rüstzeiten voraus - siehe 🚧 unten.")
-        else:
-            st.info("ℹ️ Bei dieser Instanz liegt SPT trotz Rüstzeiten sehr nah am Optimum - das ist nicht garantiert, siehe die Messreihe unten.")
+    if vehicle == "neutral":
+        st.error("⚠️ SPT weicht von der Vollaufzählung ab - das wäre ein Fehler im Beweis oder in der Implementierung, bitte melden.")
     else:
-        lm2.metric("Echtes Optimum MIT Rüstzeiten", f"erst ab n ≤ {C.BRUTE_FORCE_MAX_N}", delta_color="off")
+        gap = 100.0 * (a.spt.total - a.optimal.total) / a.optimal.total
+        st.warning(f"⚠️ SPT ist hier NICHT mehr optimal: {gap:.1f} % über dem echten Optimum MIT Rüstzeiten. Der Beweis oben setzt keine Rüstzeiten voraus - siehe 🚧 unten.")
+else:
+    tail = " (auch mit Rüstzeiten - bei dieser Instanz trifft SPT trotzdem das Optimum, das ist nicht garantiert)" if vehicle == "logistik" and a.optimal is not None else ""
+    st.success(f"✅ SPT ist {a.gap_lpt:.1f} % besser als die schlechteste Reihenfolge (LPT) und {a.gap_random:.1f} % besser als eine zufällige - bei dieser Zielfunktion beweisbar die beste überhaupt{tail}.")
 
 st.markdown("---")
 

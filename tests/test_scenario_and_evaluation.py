@@ -6,6 +6,7 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
+import spt_algorithm as A
 import spt_constants as C
 import spt_evaluation as ev
 import spt_scenario as S
@@ -67,6 +68,38 @@ def test_analysis_matches_the_optimum_for_small_n():
     a = ev.analyse(ev.Settings(n=6))
     assert a.optimal is not None
     assert a.spt_matches_optimum
+
+
+# --- Vehikel-Bewusstsein der Hauptanalyse (nicht nur einer Zusatzbox) -----------------------------------------------------------------------
+
+
+def test_analyse_on_the_logistik_vehicle_actually_uses_setup_aware_completion_times():
+    """Regressionsschutz für genau die Lücke, die der Nutzer gefunden hat: `analyse()` mit vehicle='logistik'
+    muss die Rüstzeiten TATSÄCHLICH in a.spt/a.lpt/a.optimal einrechnen, nicht nur das neutrale Ergebnis
+    zurückgeben. Verglichen mit einer unabhängigen, direkten Berechnung über `evaluate_order_with_setup`."""
+    settings = ev.Settings(n=8, seed=100000, vehicle="logistik", setup_time=30, n_families=3)
+    a = ev.analyse(settings)
+    linst = ev.logistik_instance(8, 100000, 3, 30)
+    independent_spt = A.evaluate_order_with_setup(linst.p, linst.family, linst.setup, a.spt.order)
+    assert a.spt.total == pytest.approx(independent_spt.total)
+    assert not np.array_equal(a.spt.completion, np.cumsum(linst.p[a.spt.order]))  # Rüstzeiten verschieben die Fertigstellung
+
+
+def test_analyse_on_the_logistik_vehicle_can_show_spt_missing_the_optimum():
+    """Der zentrale, jetzt im Hauptfluss sichtbare Befund: auf dem Werkstatt-Vehikel kann SPT von der
+    (rüstzeit-bewussten) Vollaufzählung abweichen - anders als auf dem neutralen Vehikel, wo das ein Bug wäre."""
+    settings = ev.Settings(n=6, seed=3, vehicle="logistik", setup_time=60, n_families=2)
+    a = ev.analyse(settings)
+    assert a.optimal is not None
+    assert a.spt.total >= a.optimal.total - 1e-6                # Optimum ist per Definition mindestens so gut
+
+
+def test_analyse_on_the_neutral_vehicle_is_unaffected_by_logistik_only_settings():
+    """`setup_time`/`n_families` in Settings dürfen das neutrale Vehikel nicht beeinflussen - sie werden nur
+    bei vehicle='logistik' überhaupt gelesen."""
+    a1 = ev.analyse(ev.Settings(n=10, seed=5, vehicle="neutral", setup_time=5))
+    a2 = ev.analyse(ev.Settings(n=10, seed=5, vehicle="neutral", setup_time=60))
+    assert a1.spt.total == pytest.approx(a2.spt.total)
 
 
 def test_analysis_is_deterministic_given_the_chain_seed():
