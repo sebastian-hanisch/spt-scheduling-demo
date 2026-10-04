@@ -25,8 +25,8 @@ SPT (Wurzel: 1||ΣCⱼ, beweisbar optimal)                                      
 ```
 
 Ergebnis in Kürze: **SPT trifft auf jeder getesteten Instanz (n = 2 bis 9) exakt das Minimum der Vollaufzählung –
-der Beweis stimmt, nicht nur in der Theorie.** Bei 20 Aufträgen liegt SPT im Mittel **97.6 %** unter der
-längste-zuerst-Reihenfolge (LPT) und **49.7 %** unter einer zufälligen Reihenfolge. Die Vollaufzählung selbst
+der Beweis stimmt, nicht nur in der Theorie.** Bei 20 Aufträgen liegt die
+längste-zuerst-Reihenfolge (LPT) im Mittel **97.6 %** und eine zufällige Reihenfolge **49.7 %** über SPT. Die Vollaufzählung selbst
 wird schnell unpraktikabel: bei 9 Aufträgen braucht sie bereits über eine Sekunde, SPT bleibt bei rund 0,005 ms –
 $n!$ wächst schneller als jede Potenz von $n$, $n \log n$ ist dagegen praktisch flach.
 **Der ehrliche Bruch:** sobald Rüstzeiten zwischen Auftragsfamilien dazukommen (Vehikel Werkstatt/Logistik), setzt
@@ -35,7 +35,7 @@ der Abstand wächst mit der Rüstzeit (0 % bei 0 Minuten, **28.9 %** bei 60 Minu
 
 | Frage | Ergebnis (Mittel über 5 feste Instanzen, Seeds 100000–100004, mit je 3 Ketten-Seeds) |
 |---|---|
-| Standardfall (20 Aufträge) | ✅ SPT liegt **97.6 %** unter LPT und **49.7 %** unter einer zufälligen Reihenfolge |
+| Standardfall (20 Aufträge) | ✅ LPT liegt **97.6 %** und eine zufällige Reihenfolge **49.7 %** über SPT |
 | **Beweis gegen Vollaufzählung** | ✅ **100 %** Trefferquote bei n = 2 bis 9 – kein einziger Fall, in dem SPT nicht das Minimum trifft |
 | **Rechenzeit** | ➖ Vollaufzählung bei n = 9 bereits über 1000 ms, SPT bei 0,005 ms – über 200.000-mal schneller |
 | **Vehikel Werkstatt/Logistik** | ❌ Rüstzeit 0/5/15/30/60 Minuten: SPT liegt **0/1.6/6.6/14.3/28.9 %** über dem echten Optimum – der Beweis setzt keine Rüstzeiten voraus |
@@ -142,6 +142,4 @@ pytest tests/ -v
 
 ---
 
-Teil des [Operations-Research-Demo-Portfolios](https://sebastianhanisch.net/demos.html) von
-[Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning.
-Interesse an einer maßgeschneiderten Lösung? [Kontakt aufnehmen](https://sebastianhanisch.net/kontakt.html).
+Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zur Reihe: [Scheduling-Theorie: SPT bis RCPSP](https://sebastianhanisch.net/konzepte-klassische-scheduling-theorie.html).

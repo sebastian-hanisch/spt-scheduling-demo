@@ -43,7 +43,7 @@ PRESETS = {
 }
 # Mittel über die fünf festen Sweep-Instanzen (Seeds 100000-100004, je drei Ketten-Seeds); Abstand = Prozent über SPT
 PRESET_HELP = {
-    "Standardfall (Voreinstellung)": "20 Aufträge: SPT liegt im Mittel 97.6 % unter der längste-zuerst-Reihenfolge (LPT) und 49.7 % unter einer zufälligen Reihenfolge - und ist für diese Zielfunktion beweisbar die beste überhaupt.",
+    "Standardfall (Voreinstellung)": "20 Aufträge: Die längste-zuerst-Reihenfolge (LPT) liegt im Mittel 97.6 % und eine zufällige Reihenfolge 49.7 % über SPT - und SPT ist für diese Zielfunktion beweisbar die beste überhaupt.",
     "Kleine Instanz (Brute-Force sichtbar)": f"{BRUTE_FORCE_MAX_N} Aufträge: hier läuft die Vollaufzählung aller {BRUTE_FORCE_MAX_N}! Reihenfolgen live mit - SPT trifft auf jeder getesteten Instanz exakt das Minimum.",
     "Große Instanz (Skalierung)": f"{N_MAX} Aufträge: SPT bleibt weiterhin beweisbar optimal und braucht nur eine Sortierung (O(n log n)) - eine Vollaufzählung wäre bei dieser Größe aussichtslos.",
     "Werkstatt/Logistik-Vehikel": "Dieselben Aufträge, aber in Familien mit Rüstzeit beim Wechsel - SPT kennt diese Rüstzeiten nicht und bleibt dadurch nicht mehr beweisbar optimal.",

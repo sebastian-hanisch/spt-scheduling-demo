@@ -102,7 +102,7 @@ with st.sidebar:
         st.session_state[KEPT["setup_time_slider"]] = setup_time
         seed_widget("n_families_slider")
         n_families = st.slider("Auftragsfamilien", *bounds("n_families_slider"), key="n_families_slider",
-                                help="Weniger Familien bei gleicher Auftragszahl bedeutet mehr Wechsel und damit mehr Rüstzeit insgesamt.")
+                                help="Mehr Familien bei gleicher Auftragszahl bedeuten mehr Wechsel und damit mehr Rüstzeit insgesamt.")
         st.session_state[KEPT["n_families_slider"]] = n_families
     else:
         setup_time = int(st.session_state.get(KEPT["setup_time_slider"], C.DEFAULT_SETUP_TIME))
@@ -175,7 +175,7 @@ if a.optimal is not None:
     m4.metric("Vollaufzählung (Gegenprobe)", "trifft SPT exakt" if a.spt_matches_optimum else "WEICHT AB", delta_color="off",
               help=f"Alle {n_jobs}! Reihenfolgen durchprobiert (auf dem gewählten Vehikel) - unabhängige Bestätigung bzw. Gegenprobe.")
 else:
-    m4.metric("Vollaufzählung", f"erst ab n ≤ {C.BRUTE_FORCE_MAX_N}", delta_color="off", help="Bei dieser Größe wäre die Vollaufzählung zu langsam - siehe das Timing-Experiment unten.")
+    m4.metric("Vollaufzählung", f"nur bis n ≤ {C.BRUTE_FORCE_MAX_N}", delta_color="off", help="Bei dieser Größe wäre die Vollaufzählung zu langsam - siehe das Timing-Experiment unten.")
 
 if a.optimal is not None and not a.spt_matches_optimum:
     if vehicle == "neutral":
@@ -185,7 +185,7 @@ if a.optimal is not None and not a.spt_matches_optimum:
         st.warning(f"⚠️ SPT ist hier NICHT mehr optimal: {gap:.1f} % über dem echten Optimum MIT Rüstzeiten. Der Beweis oben setzt keine Rüstzeiten voraus - siehe 🚧 unten.")
 else:
     tail = " (auch mit Rüstzeiten - bei dieser Instanz trifft SPT trotzdem das Optimum, das ist nicht garantiert)" if vehicle == "logistik" and a.optimal is not None else ""
-    st.success(f"✅ SPT ist {a.gap_lpt:.1f} % besser als die schlechteste Reihenfolge (LPT) und {a.gap_random:.1f} % besser als eine zufällige - bei dieser Zielfunktion beweisbar die beste überhaupt{tail}.")
+    st.success(f"✅ Die schlechteste Reihenfolge (LPT) liegt {a.gap_lpt:.1f} % über SPT und eine zufällige Reihenfolge {a.gap_random:.1f} % - bei dieser Zielfunktion ist SPT beweisbar die beste überhaupt{tail}.")
 
 st.markdown("---")
 
@@ -291,6 +291,6 @@ Timing-Messreihe, Vehikel-B-Härtetest).
 st.markdown("---")
 st.caption(
     "Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – "
-    "Operations Research und Machine Learning. Interesse an einer maßgeschneiderten Lösung für "
-    "Ihr Unternehmen? [Kontakt aufnehmen](https://sebastianhanisch.net/kontakt.html)"
+    "Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). "
+    "Mehr zur Reihe: [Scheduling-Theorie: SPT bis RCPSP](https://sebastianhanisch.net/konzepte-klassische-scheduling-theorie.html)."
 )

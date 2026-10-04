@@ -89,7 +89,7 @@ def test_brute_force_limit_is_respected_in_the_metric():
     assert _metric(at, "Vollaufzählung (Gegenprobe)") == "trifft SPT exakt"
     at2 = _run(n_slider=C.BRUTE_FORCE_MAX_N + 1)
     _ok(at2)
-    assert "erst ab n" in _metric(at2, "Vollaufzählung")
+    assert "nur bis n" in _metric(at2, "Vollaufzählung")
 
 
 def test_dice_buttons_change_the_seeds():
