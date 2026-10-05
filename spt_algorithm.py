@@ -1,9 +1,9 @@
 """SPT (Shortest Processing Time first) für 1||ΣCⱼ: n Aufträge auf einer Maschine, Ziel ist die Summe der
 Fertigstellungszeiten zu minimieren. SPT (aufsteigend nach Bearbeitungszeit sortieren) ist dafür beweisbar
 optimal - Vertauschungsargument (siehe README/App für den Beweis): tauscht man zwei benachbarte Aufträge i, j
-mit pᵢ > pⱼ, sinkt die Summe um genau (pᵢ - pⱼ) mal die Zahl der Aufträge NACH der Vertauschungsstelle (inklusive
-der beiden selbst nicht mitgezählt) - eine Reihenfolge, die nicht sortiert ist, hat also immer eine benachbarte
-Vertauschung, die verbessert; SPT ist der einzige Fixpunkt.
+mit pᵢ > pⱼ (i steht vor j), sinkt die Summe um genau pᵢ - pⱼ: nur die beiden Fertigstellungszeiten ändern sich,
+alle Aufträge davor und danach behalten ihre - eine Reihenfolge, die nicht sortiert ist, hat also immer eine
+benachbarte Vertauschung, die verbessert; SPT ist (bis auf Gleichstände) der einzige Fixpunkt.
 
 Hier zusätzlich: Brute-Force-Vollaufzählung als unabhängige Gegenprobe (nur für kleine n praktikabel), sowie die
 Rüstzeit-Variante für Vehikel B (Werkstatt/Logistik) - SPT selbst kennt keine Rüstzeiten, die Frage, wie groß der
