@@ -33,12 +33,14 @@ $n!$ wächst schneller als jede Potenz von $n$, $n \log n$ ist dagegen praktisch
 der Beweis nicht mehr – SPT (das die Rüstzeiten weiterhin ignoriert) liegt messbar über dem echten Optimum, und
 der Abstand wächst mit der Rüstzeit (0 % bei 0 Minuten, **28.9 %** bei 60 Minuten je Familienwechsel).
 
-| Frage | Ergebnis (Mittel über 5 feste Instanzen, Seeds 100000–100004, mit je 3 Ketten-Seeds) |
+| Frage | Ergebnis (feste Instanzen mit den Zufalls-Seeds 100000–100004; Bezug je Zeile in der Zeile genannt) |
 |---|---|
-| Standardfall (20 Aufträge) | ✅ LPT liegt **97.6 %** und eine zufällige Reihenfolge **49.7 %** über SPT |
-| **Beweis gegen Vollaufzählung** | ✅ **100 %** Trefferquote bei n = 2 bis 9 – kein einziger Fall, in dem SPT nicht das Minimum trifft |
-| **Rechenzeit** | ➖ Vollaufzählung bei n = 9 bereits über 1000 ms, SPT bei 0,005 ms – über 200.000-mal schneller |
-| **Vehikel Werkstatt/Logistik** | ❌ Rüstzeit 0/5/15/30/60 Minuten: SPT liegt **0/1.6/6.6/14.3/28.9 %** über dem echten Optimum – der Beweis setzt keine Rüstzeiten voraus |
+| Standardfall (20 Aufträge) | ✅ LPT liegt **97.6 %** und eine zufällige Reihenfolge **49.7 %** über SPT (Mittel über 5 feste Instanzen mit je 3 Ketten-Seeds) |
+| **Beweis gegen Vollaufzählung** | ✅ **100 %** Trefferquote bei n = 2 bis 9 – kein einziger Fall, in dem SPT nicht das Minimum trifft (je Größe 5 feste Instanzen, ohne Ketten-Seeds, denn SPT und Vollaufzählung sind deterministisch) |
+| **Rechenzeit** | ➖ Vollaufzählung bei n = 9 bereits über 1000 ms, SPT bei 0,005 ms – über 200.000-mal schneller (eine Instanz mit Zufalls-Seed 35; die Vollaufzählung einmal gemessen, SPT gemittelt über 100 Aufrufe) |
+| **Vehikel Werkstatt/Logistik** | ❌ Rüstzeit 0/5/15/30/60 Minuten: SPT liegt **0/1.6/6.6/14.3/28.9 %** über dem echten Optimum – der Beweis setzt keine Rüstzeiten voraus (Mittel über 5 feste Instanzen, ohne Ketten-Seeds, mit 8 Aufträgen und 3 Auftragsfamilien, damit sich das Optimum mit Rüstzeiten per Vollaufzählung bestimmen lässt) |
+
+Das Experiment „Rüstzeit von 0 bis 60 Minuten durchfahren“ in der App rechnet dagegen live mit den eingestellten Reglern: dieselben 5 festen Instanzen, aber höchstens 9 Aufträge (die kleinere der Auftragszahl und 9) und die eingestellte Zahl der Familien. Seine Werte können deshalb von der Zeile oben abweichen.
 
 ## Was die Demo zeigt
 
@@ -105,7 +107,7 @@ selbst ist deterministisch).
 - **Handrechnung:** eine kleine, von Hand nachgerechnete Instanz (3 Aufträge) bestätigt SPT-Reihenfolge und
   Zielfunktionswert exakt.
 - **Alle Zahlen der App-Texte sind als Tests hinterlegt** (Standardfall, Optimalitäts-Trefferquote, Rechenzeit,
-  Rüstzeit-Härtetest, jeweils Mittel über die festen Sweep-Instanzen × Ketten; positive **und** negative
+  Rüstzeit-Härtetest, jeweils mit dem in der Tabelle oben genannten Bezug; positive **und** negative
   Aussagen; Rechenzeiten nur als Größenordnung); alle 5 Presets geprüft; AppTest-Rauchtests (Voreinstellung,
   jedes Preset, jeder Schritt auf beiden Vehikeln, Würfel-Knöpfe, Permalink-Grenzen inkl. ungültigem Vehikel,
   Extremwerte, Experimente auf Abruf, Footer).

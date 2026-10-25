@@ -57,9 +57,24 @@ einfach aufsteigend nach Bearbeitungszeit sortieren – kein Suchverfahren, kein
 optimal**. Der Beweis ist ein Vertauschungsargument: in jeder Reihenfolge, die nicht sortiert ist, gibt es zwei
 benachbarte Aufträge $i$ vor $j$ mit $p_i > p_j$ – vertauscht man sie, ändert sich nur die Summe der beiden
 Fertigstellungszeiten, und die wird dabei um genau $p_i - p_j > 0$ kleiner. Jede unsortierte Reihenfolge lässt sich
-also verbessern; SPT ist der einzige Zustand, an dem keine Vertauschung mehr hilft.
+also verbessern. Wiederholt man das, ist die Reihenfolge nach endlich vielen Tauschschritten aufsteigend sortiert,
+und jeder Schritt senkt die Summe. Eine beste Reihenfolge ist deshalb immer sortiert; Aufträge gleicher Bearbeitungszeit
+ändern beim Vertauschen nichts, alle aufsteigenden Reihenfolgen sind also gleich gut.
 """
 )
+
+# erklaerseite:einfach:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/spt-reihenfolge-erklaert.json, nicht von Hand ändern)
+with st.expander("💬 In einfachen Worten"):
+    st.markdown(
+        """
+Stellen Sie sich eine Maschine vor, die Aufträge nacheinander bearbeitet, jeden mit einer eigenen Bearbeitungszeit. Wer hinten steht, wartet auf alle davor. Die Regel **SPT** ordnet die Aufträge einfach nach ihrer Dauer, den kürzesten zuerst. Dann ist die durchschnittliche Zeit bis zur Fertigstellung am kleinsten, und keine andere Reihenfolge schafft das besser.
+
+Der Grund ist ein Tauschargument: Steht irgendwo ein langer Auftrag vor einem kurzen, gewinnt der kurze durch das Vertauschen mehr, als der lange verliert. Die Demo stellt SPT der Reihenfolge „längste zuerst“, dem Zufall und, bei kleinen Aufgaben, dem Durchprobieren aller Reihenfolgen gegenüber. Sobald beim Wechsel zwischen Auftragsfamilien Rüstzeit anfällt, gilt der Beweis nicht mehr, und SPT ist messbar schlechter als die tatsächlich beste Reihenfolge.
+
+[Ausführlich und verständlich erklärt, mit Fachteil](https://sebastianhanisch.net/spt-reihenfolge-erklaert.html)
+        """
+    )
+# erklaerseite:einfach:end
 st.caption(
     "Wurzel der neuen Konzepte-Linie „Klassische Scheduling-Theorie“ - führt die α|β|γ-Notation ein, die alle "
     "Folgestücke verwenden (Earliest Due Date, Moore-Hodgson, gewichtete Regeln, Johnson-Regel, parallele Maschinen, "
@@ -257,6 +272,26 @@ st.caption(
 st.markdown("---")
 
 with st.expander("📐 Mathematische Formulierung"):
+    # erklaerseite:lesehilfe:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/spt-reihenfolge-erklaert.json, nicht von Hand ändern)
+    st.markdown(
+        r"""
+**Lesehilfe.** Gegeben sind $n$ Aufträge mit Bearbeitungszeiten $p_j$ auf einer Maschine. Gesucht ist eine Reihenfolge, bei der die Summe der Fertigstellungszeiten $\sum_j C_j$ möglichst klein ist.
+
+| Symbol | Bedeutung |
+|---|---|
+| $n$ | Zahl der Aufträge |
+| $p_j$ | Bearbeitungszeit des Auftrags $j$ |
+| $\pi$ | Reihenfolge, in der die Aufträge bearbeitet werden |
+| $C_j$ | Fertigstellungszeit des Auftrags $j$ (Summe der Bearbeitungszeiten bis einschließlich $j$) |
+| $i$, $j$ | zwei benachbarte Aufträge, $i$ steht vor $j$ und es gilt $p_i > p_j$ |
+| $t$ | Summe der Bearbeitungszeiten aller Aufträge vor den beiden |
+| $C_i'$, $C_j'$ | Fertigstellungszeiten nach dem Vertauschen von $i$ und $j$ |
+| $n!$ | Zahl aller möglichen Reihenfolgen (Vollaufzählung) |
+
+[Schritt für Schritt erklärt, mit Herleitung und Literatur](https://sebastianhanisch.net/spt-reihenfolge-erklaert.html#fachleute)
+        """
+    )
+    # erklaerseite:lesehilfe:end
     st.markdown(
         r"""
 **Problem** ($1||\sum C_j$): $n$ Aufträge mit Bearbeitungszeit $p_j$ auf einer Maschine; eine Reihenfolge $\pi$ legt
@@ -271,8 +306,11 @@ vor $j$ mit $p_i > p_j$ stehen (existiert, solange $\pi$ nicht SPT-sortiert ist)
 Bearbeitungszeiten VOR den beiden gleich bleibt. Vorher: $C_i = t + p_i$, $C_j = t + p_i + p_j$ (mit $t$ = Summe
 davor). Nachher (j vor i): $C_j' = t + p_j$, $C_i' = t + p_j + p_i$. Die Summe sinkt um
 $(C_i + C_j) - (C_i' + C_j') = p_i - p_j > 0$. Jede nicht SPT-sortierte Reihenfolge lässt sich also durch eine
-solche Vertauschung verbessern; SPT ist der einzige Zustand, an dem keine benachbarte Vertauschung mehr hilft -
-und damit das globale Minimum (die Zielfunktion ist eine Summe über alle Paare benachbarter Vertauschungen).
+solche Vertauschung verbessern. Wiederholt man das (wie beim Blasensortieren), erreicht man nach endlich vielen
+Schritten eine aufsteigende Reihenfolge, und jeder Schritt senkt die Summe streng. Da es nur endlich viele
+Reihenfolgen gibt, existiert ein Optimum, und es kann kein solches Paar enthalten, ist also aufsteigend sortiert.
+Aufträge gleicher Bearbeitungszeit ändern beim Vertauschen nichts, deshalb sind alle aufsteigenden Reihenfolgen
+(Gleichstände) gleich gut und damit das globale Minimum.
 
 **Kennzahl.** Abstand zu SPT $= 100 \cdot (\text{Summe} - \text{Summe}_{\text{SPT}}) / \text{Summe}_{\text{SPT}}$.
 Für $n \le 9$ zusätzlich die Vollaufzählung aller $n!$ Reihenfolgen als unabhängige Gegenprobe.
