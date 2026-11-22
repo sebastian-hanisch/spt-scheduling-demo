@@ -306,7 +306,7 @@ vor $j$ mit $p_i > p_j$ stehen (existiert, solange $\pi$ nicht SPT-sortiert ist)
 Bearbeitungszeiten VOR den beiden gleich bleibt. Vorher: $C_i = t + p_i$, $C_j = t + p_i + p_j$ (mit $t$ = Summe
 davor). Nachher (j vor i): $C_j' = t + p_j$, $C_i' = t + p_j + p_i$. Die Summe sinkt um
 $(C_i + C_j) - (C_i' + C_j') = p_i - p_j > 0$. Jede nicht SPT-sortierte Reihenfolge lässt sich also durch eine
-solche Vertauschung verbessern. Wiederholt man das (wie beim Blasensortieren), erreicht man nach endlich vielen
+solche Vertauschung verbessern. Wiederholt man das (wie beim Bubblesort), erreicht man nach endlich vielen
 Schritten eine aufsteigende Reihenfolge, und jeder Schritt senkt die Summe streng. Da es nur endlich viele
 Reihenfolgen gibt, existiert ein Optimum, und es kann kein solches Paar enthalten, ist also aufsteigend sortiert.
 Aufträge gleicher Bearbeitungszeit ändern beim Vertauschen nichts, deshalb sind alle aufsteigenden Reihenfolgen

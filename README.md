@@ -88,7 +88,7 @@ selbst ist deterministisch).
 - **Vorab-Vermutung: "SPT bleibt eine gute Heuristik, auch wenn der Beweis nicht mehr gilt"** – auf dem
   Werkstatt/Logistik-Vehikel **teilweise bestätigt, aber nicht garantiert**: bei kleiner Rüstzeit ist der Abstand
   zum echten Optimum klein (1.6 % bei 5 Minuten), wächst aber deutlich mit der Rüstzeit (28.9 % bei 60 Minuten) –
-  und einzelne Instanzen liegen noch höher (bis über 50 % im Einzelfall bei hoher Rüstlast, siehe Test). SPT
+  und einzelne Instanzen liegen noch höher (bis über 50 % im Einzelfall bei hohen Rüstzeiten, siehe Test). SPT
   bleibt also kein sicherer Ersatz für ein Verfahren, das Rüstzeiten selbst mit optimiert.
 - **Die Vollaufzählung ist die einzige echte Gegenprobe**, aber praktisch nur bis $n \approx 9$ nutzbar – ab dort
   vertraut die Demo dem Beweis (Vertauschungsargument) statt einer weiteren Vollaufzählung. Das ist Absicht:
